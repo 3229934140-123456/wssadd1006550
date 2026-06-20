@@ -3,16 +3,16 @@ import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
-import { getAllShareRecords } from '@/data/share-records';
+import { getAllShareRecords, buildShareLink } from '@/data/share-records';
 import styles from './index.module.scss';
 
 const SharePage: React.FC = () => {
   const records = useMemo(() => getAllShareRecords(), []);
 
-  const handleCopyLink = (token: string) => {
-    const link = `https://dental-report.example.com/share?token=${token}`;
+  const handleCopyLink = (token: string, reportTypeLabel: string) => {
+    const link = buildShareLink(token);
     Taro.setClipboardData({
-      data: `${link}\n\n这是我分享的口腔检查报告，包含医生结论和就诊建议。\n💡 链接 3 天内有效，请在浏览器中打开查看。`,
+      data: `${link}\n\n这是我分享的口腔检查报告（${reportTypeLabel}），包含医生结论和就诊建议。\n💡 链接 3 天内有效，请在浏览器中打开查看。`,
       success: () => {
         Taro.showToast({ title: '链接已复制', icon: 'success' });
       },
@@ -81,7 +81,7 @@ const SharePage: React.FC = () => {
                 {isActive && (
                   <View
                     className={classnames(styles.shareActionBtn, styles.shareActionBtnPrimary)}
-                    onClick={() => handleCopyLink(record.token)}
+                    onClick={() => handleCopyLink(record.token, record.reportTypeLabel)}
                   >
                     <Text className={styles.shareActionBtnText}>复制链接</Text>
                   </View>

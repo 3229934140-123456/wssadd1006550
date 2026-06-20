@@ -20,7 +20,8 @@ const ImageViewerPage: React.FC = () => {
   const { report, severityMap } = useMemo(() => {
     const instance = Taro.getCurrentInstance();
     const id = instance.router?.params?.id;
-    const rep = mockReports.find(r => r.id === id) || mockReports[0];
+    const rep = id ? mockReports.find(r => r.id === id) : undefined;
+    if (!rep) return { report: undefined, severityMap: {} };
     const map: Record<string, Severity> = {};
     rep.findings.forEach(f => {
       if (f.toothPosition) {
@@ -56,10 +57,29 @@ const ImageViewerPage: React.FC = () => {
   };
 
   const getMarkerClass = (sev: Severity) => {
-    if (sev === 'moderate') return classnames(styles.annotationMarkerMod);
-    if (sev === 'mild') return classnames(styles.annotationMarkerMild);
+    if (sev === 'moderate') return styles.annotationMarkerMod;
+    if (sev === 'mild') return styles.annotationMarkerMild;
     return '';
   };
+
+  if (!report) {
+    return (
+      <View className={styles.container}>
+        <View style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          flexDirection: 'column',
+          gap: '24rpx'
+        }}>
+          <Text style={{ fontSize: '64rpx' }}>🖼️</Text>
+          <Text style={{ fontSize: '32rpx', color: '#BDC3C7' }}>暂无影像信息</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView scrollY className={styles.container}>
@@ -110,7 +130,7 @@ const ImageViewerPage: React.FC = () => {
                 getMarkerClass(f.severity)
               )}
               style={{
-                top: `${20 + idx * 20}%,
+                top: `${20 + idx * 20}%`,
                 left: `${25 + idx * 18}%`
               }}
             >

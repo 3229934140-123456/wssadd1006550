@@ -30,14 +30,26 @@ const severityBadgeStyleMap: Record<Severity, string> = {
 };
 
 const FamilyViewPage: React.FC = () => {
-  const report = useMemo(() => {
+  const { report, status, shareRecord } = useMemo(() => {
     const instance = Taro.getCurrentInstance();
-    const tok = instance.router?.params?.token || 'abc12345';
-    const rec = getShareRecord(tok);
-    if (!rec || rec.status === 'expired') {
-      return null;
+    const tok = instance.router?.params?.token;
+
+    if (!tok) {
+      return { report: null, status: 'invalid', shareRecord: null };
     }
-    return mockReports.find(r => r.id === rec.reportId) || null;
+
+    const rec = getShareRecord(tok);
+
+    if (!rec) {
+      return { report: null, status: 'not_found', shareRecord: null };
+    }
+
+    if (rec.status === 'expired') {
+      return { report: null, status: 'expired', shareRecord: rec };
+    }
+
+    const rep = mockReports.find(r => r.id === rec.reportId);
+    return { report: rep || null, status: 'ok', shareRecord: rec };
   }, []);
 
   const severityMap = useMemo(() => {
@@ -54,14 +66,26 @@ const FamilyViewPage: React.FC = () => {
   }, [report]);
 
   if (!report) {
+    let icon = '⏰';
+    let title = '链接已失效';
+    let desc = '该分享链接已超过有效期\n请联系患者或诊所重新获取';
+
+    if (status === 'invalid') {
+      icon = '🔗';
+      title = '链接无效';
+      desc = '未找到分享标识\n请检查链接是否完整';
+    } else if (status === 'not_found') {
+      icon = '❓';
+      title = '链接不存在';
+      desc = '该分享链接不存在或已被撤销\n请联系患者重新生成分享链接';
+    }
+
     return (
       <ScrollView scrollY className={styles.container}>
         <View className={styles.expiredPage}>
-          <Text className={styles.expiredIcon}>⏰</Text>
-          <Text className={styles.expiredTitle}>链接已失效</Text>
-          <Text className={styles.expiredDesc}>
-            该分享链接已超过有效期{'\n'}请联系患者或诊所重新获取
-          </Text>
+          <Text className={styles.expiredIcon}>{icon}</Text>
+          <Text className={styles.expiredTitle}>{title}</Text>
+          <Text className={styles.expiredDesc}>{desc}</Text>
 
           <View className={styles.tipBox}>
             <Text className={styles.tipTitle}>💡 温馨提示</Text>

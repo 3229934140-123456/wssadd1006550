@@ -40,20 +40,13 @@ export function isCalendarEventAdded(reportId: string): boolean {
   return !!events[reportId];
 }
 
-export function markCalendarAdded(
-  reportId: string,
-  reminderType: ReminderType,
-  eventId: string
-) {
+export function clearCalendarEvent(reportId: string) {
   const events = getStoredEvents();
-  events[reportId] = {
-    reportId,
-    reminderType,
-    eventId,
-    addedAt: new Date().toISOString()
-  };
-  saveEvents(events);
-  console.info('[CalendarUtil] 标记已添加到日历', { reportId, eventId });
+  if (events[reportId]) {
+    delete events[reportId];
+    saveEvents(events);
+    console.info('[CalendarUtil] 清除日历事件记录', { reportId });
+  }
 }
 
 export async function addToCalendar(
@@ -69,24 +62,36 @@ export async function addToCalendar(
     return true;
   }
 
-  try {
-    const targetDate = new Date(dateStr);
-    const startTime = targetDate.getTime();
-    const endTime = startTime + 30 * 60 * 1000;
-    const title = reminderTitleMap[reminderType];
-    const description = `${note || '口腔复诊'}。${clinicName} - ${doctorName}医生`;
+  const targetDate = new Date(dateStr);
+  const startTime = targetDate.getTime();
+  const endTime = startTime + 30 * 60 * 1000;
+  const title = reminderTitleMap[reminderType];
+  const description = `${note || '口腔复诊'}。${clinicName} - ${doctorName}医生`;
 
-    const systemInfo = Taro.getSystemInfoSync();
+  const apiAvailable =
+    typeof Taro.addPhoneCalendarEvent === 'function' ||
+    typeof Taro.addPhoneCalendar === 'function';
+
+  if (!apiAvailable) {
+    console.warn('[CalendarUtil] 当前环境不支持添加日历事件');
+    Taro.showModal({
+      title: '暂不支持日历',
+      content: '当前运行环境不支持添加日历事件，请手动将就诊时间记录到日历中。',
+      showCancel: false
+    });
+    return false;
+  }
+
+  try {
     console.info('[CalendarUtil] 添加日历事件', {
       title,
       startTime,
-      endTime,
-      platform: systemInfo.platform
+      endTime
     });
 
     let result: any = null;
 
-    if (Taro.addPhoneCalendarEvent) {
+    if (typeof Taro.addPhoneCalendarEvent === 'function') {
       result = await Taro.addPhoneCalendarEvent({
         title,
         description,
@@ -95,7 +100,7 @@ export async function addToCalendar(
         alarmOffset: '0,-60',
         allDay: false
       });
-    } else if (Taro.addPhoneCalendar) {
+    } else if (typeof Taro.addPhoneCalendar === 'function') {
       result = await Taro.addPhoneCalendar({
         title,
         description,
@@ -106,23 +111,54 @@ export async function addToCalendar(
       });
     }
 
-    if (result && result.eventId) {
-      markCalendarAdded(reportId, reminderType, result.eventId);
-    } else {
-      markCalendarAdded(reportId, reminderType, Date.now().toString());
+    const hasValidResult = result && (result.eventId || result._success === true || result.errMsg === 'ok');
+
+    if (!hasValidResult) {
+      console.warn('[CalendarUtil] 日历接口返回异常', result);
+      Taro.showModal({
+        title: '添加失败',
+        content: '未能成功添加到日历，请检查日历权限设置，或手动添加就诊提醒。',
+        showCancel: false
+      });
+      return false;
     }
 
+    const eventId =
+      result.eventId ||
+      result.eventID ||
+      `local_${reportId}_${Date.now()}`;
+
+    const events = getStoredEvents();
+    events[reportId] = {
+      reportId,
+      reminderType,
+      eventId,
+      addedAt: new Date().toISOString()
+    };
+    saveEvents(events);
+
+    console.info('[CalendarUtil] 成功添加日历事件', { reportId, eventId });
     Taro.showToast({ title: '已添加到日历', icon: 'success' });
     return true;
   } catch (err: any) {
     console.error('[CalendarUtil] 添加日历失败', err);
-    if (err && (err.errMsg || err.message)) {
+
+    const errMsg = err?.errMsg || err?.message || '';
+
+    if (errMsg.includes('auth') || errMsg.includes('deny') || errMsg.includes('权限')) {
+      Taro.showModal({
+        title: '需要日历权限',
+        content: '请在系统设置中授予日历访问权限，以便添加就诊提醒。',
+        showCancel: false
+      });
+    } else {
       Taro.showModal({
         title: '添加日历失败',
-        content: '请检查日历权限，或手动将就诊时间添加到日历中。',
+        content: '未能成功添加到日历，请稍后重试，或手动记录就诊时间。',
         showCancel: false
       });
     }
+
     return false;
   }
 }

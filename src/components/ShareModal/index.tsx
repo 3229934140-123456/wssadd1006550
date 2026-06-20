@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { createShareRecord } from '@/data/share-records';
+import { createShareRecord, buildShareLink } from '@/data/share-records';
 import styles from './index.module.scss';
 
 interface ShareModalProps {
@@ -28,12 +28,16 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const handleGenerate = () => {
     const record = createShareRecord(reportId, clinicName, reportTypeLabel, doctorName);
     setToken(record.token);
-    const link = `https://dental-report.example.com/share?token=${record.token}`;
+    const link = buildShareLink(record.token);
     const expDate = new Date(record.expiryDate);
-    const expStr = `${expDate.getMonth() + 1}月${expDate.getDate()}日`;
+    const month = expDate.getMonth() + 1;
+    const day = expDate.getDate();
+    const hours = expDate.getHours().toString().padStart(2, '0');
+    const minutes = expDate.getMinutes().toString().padStart(2, '0');
+    const expStr = `${month}月${day}日 ${hours}:${minutes}`;
     setShareLink(link);
     setExpiry(expStr);
-    console.info('[ShareModal] 生成分享链接', { reportId, link, token: record.token });
+    console.info('[ShareModal] 生成分享链接并持久化', { reportId, token: record.token });
   };
 
   const handleCopy = () => {
