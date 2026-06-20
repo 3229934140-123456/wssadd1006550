@@ -127,3 +127,62 @@
 .countdownDone {
   color: $color-success;
 }
+
+.actionRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.calBtn {
+  @include button-reset;
+  flex: 1;
+  height: 60rpx;
+  padding: 0 20rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-light 100%);
+  border: none;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.calBtnDone {
+  background: $color-tag-green-bg;
+
+  .calBtnText {
+    color: $color-tag-green-text;
+  }
+}
+
+.calBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.viewBtn {
+  @include button-reset;
+  flex: 1;
+  height: 60rpx;
+  padding: 0 20rpx;
+  border-radius: $radius-round;
+  background: $color-bg-page;
+  border: 1rpx solid $color-border;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.viewBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}

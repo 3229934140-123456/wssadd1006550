@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import { Reminder } from '@/types/reminder';
 import dayjs from 'dayjs';
+import { addToCalendar, isCalendarEventAdded } from '@/utils/calendar';
 import styles from './index.module.scss';
 
 interface ReminderCardProps {
   reminder: Reminder;
   onClick?: (id: string) => void;
+  onCalendarChange?: () => void;
 }
 
 const statusStyleMap: Record<string, string> = {
@@ -30,10 +33,15 @@ const cardStyleMap: Record<string, string> = {
   done: styles.cardDone
 };
 
-const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onClick }) => {
+const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onClick, onCalendarChange }) => {
+  const [calendarAdded, setCalendarAdded] = useState(false);
   const today = dayjs();
   const targetDate = dayjs(reminder.date);
   const diffDays = targetDate.diff(today, 'day');
+
+  useEffect(() => {
+    setCalendarAdded(isCalendarEventAdded(reminder.reportId));
+  }, [reminder.reportId]);
 
   const getCountdown = () => {
     if (reminder.status === 'done') return { text: '已完成', style: styles.countdownDone };
@@ -44,6 +52,28 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onClick }) => {
   };
 
   const countdown = getCountdown();
+
+  const handleAddCalendar = (e) => {
+    e.stopPropagation();
+    addToCalendar(
+      reminder.reportId,
+      reminder.type,
+      reminder.date,
+      reminder.note,
+      reminder.clinicName,
+      reminder.doctorName
+    ).then(ok => {
+      if (ok) {
+        setCalendarAdded(true);
+        onCalendarChange?.();
+      }
+    });
+  };
+
+  const handleView = (e) => {
+    e.stopPropagation();
+    Taro.navigateTo({ url: `/pages/report/index?id=${reminder.reportId}` });
+  };
 
   return (
     <View
@@ -65,6 +95,22 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onClick }) => {
         <Text className={styles.dateInfo}>{targetDate.format('MM月DD日')}</Text>
         <Text className={classnames(styles.countdown, countdown.style)}>{countdown.text}</Text>
       </View>
+
+      {reminder.status !== 'done' && (
+        <View className={styles.actionRow}>
+          <View
+            className={classnames(styles.calBtn, calendarAdded && styles.calBtnDone)}
+            onClick={handleAddCalendar}
+          >
+            <Text className={styles.calBtnText}>
+              {calendarAdded ? '✅ 已加入日历' : '📆 添加到日历'}
+            </Text>
+          </View>
+          <View className={styles.viewBtn} onClick={handleView}>
+            <Text className={styles.viewBtnText}>查看报告</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 };

@@ -8,6 +8,8 @@ import { DentalReport, Severity } from '@/types/report';
 import SectionCard from '@/components/SectionCard';
 import ToothDiagram from '@/components/ToothDiagram';
 import ShareModal from '@/components/ShareModal';
+import ImageThumbnail from '@/components/ImageThumbnail';
+import { addToCalendar, isCalendarEventAdded } from '@/utils/calendar';
 import styles from './index.module.scss';
 
 const typeIconMap: Record<string, string> = {
@@ -39,6 +41,7 @@ const severityBadgeStyleMap: Record<Severity, string> = {
 
 const ReportPage: React.FC = () => {
   const [showShare, setShowShare] = useState(false);
+  const [calendarAdded, setCalendarAdded] = useState(false);
 
   const report = useMemo<DentalReport | undefined>(() => {
     const instance = Taro.getCurrentInstance();
@@ -59,6 +62,25 @@ const ReportPage: React.FC = () => {
     });
     return map;
   }, [report]);
+
+  React.useEffect(() => {
+    if (report) {
+      setCalendarAdded(isCalendarEventAdded(report.id));
+    }
+  }, [report]);
+
+  const handleAddCalendar = async () => {
+    if (!report || !report.reminder) return;
+    const ok = await addToCalendar(
+      report.id,
+      report.reminder.type,
+      report.reminder.date,
+      report.reminder.note,
+      report.clinicName,
+      report.doctorName
+    );
+    if (ok) setCalendarAdded(true);
+  };
 
   if (!report) {
     return (
@@ -90,6 +112,14 @@ const ReportPage: React.FC = () => {
             </View>
           </View>
         </View>
+      </View>
+
+      <View className={styles.imageSection}>
+        <View className={styles.imageSectionTitle}>
+          <Text className={styles.imageSectionIcon}>🖼️</Text>
+          <Text>影像缩略图</Text>
+        </View>
+        <ImageThumbnail report={report} severityMap={severityMap} />
       </View>
 
       <SectionCard title="检查信息">
@@ -147,6 +177,16 @@ const ReportPage: React.FC = () => {
               {dayjs(report.reminder.date).format('YYYY年MM月DD日')}
             </Text>
             <Text className={styles.reminderNote}>{report.reminder.note}</Text>
+
+            <View
+              className={classnames(styles.calendarBtn, calendarAdded && styles.calendarBtnDone)}
+              onClick={handleAddCalendar}
+            >
+              <Text>{calendarAdded ? '✅' : '📆'}</Text>
+              <Text className={styles.calendarBtnText}>
+                {calendarAdded ? '已添加到日历' : '添加到手机日历'}
+              </Text>
+            </View>
           </View>
         )}
       </SectionCard>
@@ -168,6 +208,8 @@ const ReportPage: React.FC = () => {
         visible={showShare}
         reportId={report.id}
         clinicName={report.clinicName}
+        reportTypeLabel={report.reportTypeLabel}
+        doctorName={report.doctorName}
         onClose={() => setShowShare(false)}
       />
     </ScrollView>

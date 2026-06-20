@@ -1,0 +1,183 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+  border: 1rpx solid $color-border;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.95;
+  }
+}
+
+.previewWrap {
+  position: relative;
+  width: 100%;
+  height: 280rpx;
+  background: linear-gradient(135deg, rgba(91, 184, 201, 0.15) 0%, rgba(140, 208, 219, 0.05) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.previewBg {
+  font-size: 140rpx;
+  opacity: 0.25;
+}
+
+.previewGrid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gridCell {
+  width: 25%;
+  height: 50%;
+  border: 1rpx solid rgba(91, 184, 201, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.gridCellAffected {
+  background: rgba(255, 107, 107, 0.12);
+  color: $color-severity-severe;
+  font-weight: $font-weight-bold;
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.gridCellModerate {
+  background: rgba(255, 170, 92, 0.15);
+  color: $color-severity-moderate;
+  font-weight: $font-weight-semibold;
+}
+
+.gridCellMild {
+  background: rgba(255, 217, 61, 0.15);
+  color: #C5A300;
+}
+
+.previewLabel {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.previewLabelText {
+  font-size: $font-size-xs;
+  color: $color-primary-dark;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.previewBadge {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.previewBadgeText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+}
+
+.annotationArea {
+  position: absolute;
+  bottom: 16rpx;
+  left: 16rpx;
+  right: 16rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: $radius-sm;
+  padding: 12rpx 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.annotationDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-error;
+  margin-right: 12rpx;
+  box-shadow: 0 0 0 6rpx rgba(255, 107, 107, 0.2);
+  flex-shrink: 0;
+}
+
+.annotationText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.infoBar {
+  padding: $spacing-md $spacing-lg;
+  background: $color-bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.infoLeft {
+  flex: 1;
+}
+
+.infoTitle {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+  display: block;
+}
+
+.infoDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.viewBtn {
+  @include button-reset;
+  padding: 8rpx 24rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+  height: 56rpx;
+  min-width: 112rpx;
+  border: none;
+  margin-left: $spacing-sm;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.viewBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}

@@ -4,7 +4,9 @@ export default defineAppConfig({
     'pages/remind/index',
     'pages/mine/index',
     'pages/report/index',
-    'pages/share/index'
+    'pages/share/index',
+    'pages/family-view/index',
+    'pages/image-viewer/index'
   ],
   window: {
     backgroundTextStyle: 'light',
