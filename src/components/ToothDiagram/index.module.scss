@@ -1,0 +1,149 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  border: 1rpx solid $color-border;
+}
+
+.title {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: center;
+  margin-bottom: $spacing-md;
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4rpx;
+}
+
+.halfRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider {
+  width: 4rpx;
+  height: 80rpx;
+  background: $color-border;
+  margin: 0 8rpx;
+}
+
+.dividerHorizontal {
+  width: 100%;
+  height: 4rpx;
+  background: $color-border;
+  margin: $spacing-xs 0;
+}
+
+.tooth {
+  width: 64rpx;
+  height: 56rpx;
+  border-radius: $radius-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rpx;
+  border: 1rpx solid $color-border;
+  background: $color-bg-page;
+  transition: all $transition-base;
+}
+
+.toothNumber {
+  font-size: 18rpx;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.toothAffected {
+  border-color: $color-primary;
+  background: rgba(91, 184, 201, 0.15);
+
+  .toothNumber {
+    color: $color-primary-dark;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.toothSevere {
+  border-color: $color-severity-severe;
+  background: rgba(255, 107, 107, 0.12);
+
+  .toothNumber {
+    color: $color-severity-severe;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.toothModerate {
+  border-color: $color-severity-moderate;
+  background: rgba(255, 170, 92, 0.12);
+
+  .toothNumber {
+    color: $color-severity-moderate;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.toothMild {
+  border-color: $color-severity-mild;
+  background: rgba(255, 217, 61, 0.12);
+
+  .toothNumber {
+    color: #C5A300;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: $spacing-md;
+  gap: $spacing-sm;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  margin-right: $spacing-sm;
+}
+
+.legendDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 4rpx;
+  margin-right: 6rpx;
+}
+
+.legendText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.legendSevere {
+  background: $color-severity-severe;
+}
+
+.legendModerate {
+  background: $color-severity-moderate;
+}
+
+.legendMild {
+  background: $color-severity-mild;
+}
+
+.legendNormal {
+  background: $color-primary;
+}

@@ -1,0 +1,107 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.95;
+    transform: scale(0.99);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.typeTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 20rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.typePanoramic {
+  background: $color-tag-blue-bg;
+  color: $color-tag-blue-text;
+}
+
+.typePeriapical {
+  background: $color-tag-green-bg;
+  color: $color-tag-green-text;
+}
+
+.typeCbct {
+  background: $color-tag-orange-bg;
+  color: $color-tag-orange-text;
+}
+
+.statusTag {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.cardBody {
+  margin-bottom: $spacing-md;
+}
+
+.clinicName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis;
+}
+
+.doctorInfo {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.examArea {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.reportDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.findingCount {
+  font-size: $font-size-sm;
+  color: $color-primary-dark;
+  font-weight: $font-weight-medium;
+}
+
+.reminderBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  background: $color-tag-orange-bg;
+  font-size: $font-size-xs;
+  color: $color-tag-orange-text;
+  font-weight: $font-weight-medium;
+  margin-left: $spacing-sm;
+  white-space: nowrap;
+}

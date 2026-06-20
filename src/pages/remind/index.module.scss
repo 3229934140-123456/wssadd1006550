@@ -1,0 +1,114 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(91, 184, 201, 0.08) 0%, $color-bg-page 30%);
+  padding-bottom: calc(#{$spacing-xl} + env(safe-area-inset-bottom));
+}
+
+.header {
+  padding: $spacing-lg;
+}
+
+.headerTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.headerDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.tabs {
+  display: flex;
+  padding: 0 $spacing-lg;
+  margin-bottom: $spacing-lg;
+  gap: $spacing-sm;
+}
+
+.tab {
+  @include button-reset;
+  padding: 10rpx 28rpx;
+  border-radius: $radius-round;
+  background: $color-bg-card;
+  border: 1rpx solid $color-border;
+  height: 64rpx;
+  min-width: 100rpx;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.tabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-color: transparent;
+
+  .tabText {
+    color: $color-text-white;
+  }
+}
+
+.tabText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.listContainer {
+  padding: 0 $spacing-lg;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  padding-left: $spacing-xs;
+}
+
+.urgentSection {
+  margin-bottom: $spacing-xl;
+}
+
+.normalSection {
+  margin-bottom: $spacing-xl;
+}
+
+.doneSection {
+  margin-bottom: $spacing-xl;
+  opacity: 0.7;
+}
+
+.countBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32rpx;
+  height: 32rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+  margin-left: $spacing-sm;
+  padding: 0 8rpx;
+}
+
+.countText {
+  font-size: 18rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.emptyHint {
+  padding: 60rpx 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
