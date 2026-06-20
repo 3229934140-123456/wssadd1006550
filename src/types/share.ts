@@ -7,7 +7,8 @@ export interface ShareRecord {
   createdAt: string;
   expiryDate: string;
   createdBy: string;
-  status: 'active' | 'expired';
+  status: 'active' | 'expired' | 'revoked';
+  revokedAt?: string;
   readAt?: string;
   readBy?: string;
 }

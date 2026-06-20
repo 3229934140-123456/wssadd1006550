@@ -48,6 +48,10 @@ const FamilyViewPage: React.FC = () => {
       return { report: null, status: 'expired', shareRecord: rec, token: tok };
     }
 
+    if (rec.status === 'revoked') {
+      return { report: null, status: 'revoked', shareRecord: rec, token: tok };
+    }
+
     const rep = mockReports.find(r => r.id === rec.reportId);
     return { report: rep || null, status: 'ok', shareRecord: rec, token: tok };
   }, []);
@@ -94,6 +98,10 @@ const FamilyViewPage: React.FC = () => {
       icon = '❓';
       title = '链接不存在';
       desc = '该分享链接不存在或已被撤销\n请联系患者重新生成分享链接';
+    } else if (status === 'revoked') {
+      icon = '🚫';
+      title = '链接已被撤销';
+      desc = '该分享链接已被患者撤销\n如需查看请联系患者重新生成';
     }
 
     return (

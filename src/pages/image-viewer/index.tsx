@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -14,6 +14,13 @@ const severityLabelMap: Record<Severity, string> = {
   moderate: '中等',
   mild: '轻微',
   normal: '关注'
+};
+
+const severityBadge: Record<Severity, string> = {
+  severe: styles.severityBadgeSevere,
+  moderate: styles.severityBadgeModerate,
+  mild: styles.severityBadgeMild,
+  normal: styles.severityBadgeNormal
 };
 
 const ImageViewerPage: React.FC = () => {
@@ -34,6 +41,23 @@ const ImageViewerPage: React.FC = () => {
   }, []);
 
   const [activeFindingIdx, setActiveFindingIdx] = useState<number | null>(null);
+  const [scrollIntoId, setScrollIntoId] = useState<string>('');
+
+  const handleFindingClick = useCallback((idx: number) => {
+    const nextIdx = activeFindingIdx === idx ? null : idx;
+    setActiveFindingIdx(nextIdx);
+    if (nextIdx !== null) {
+      const targetId = `iv-marker-${nextIdx}`;
+      setScrollIntoId('');
+      Taro.nextTick(() => {
+        setScrollIntoId(targetId);
+      });
+    }
+  }, [activeFindingIdx]);
+
+  const handleMarkerClick = useCallback((idx: number) => {
+    setActiveFindingIdx(activeFindingIdx === idx ? null : idx);
+  }, [activeFindingIdx]);
 
   const getCellClass = (num: string) => {
     if (!report || !report.affectedTeeth.includes(num)) return styles.gridCell;
@@ -74,9 +98,20 @@ const ImageViewerPage: React.FC = () => {
     return classnames(base, activeFindingIdx === idx && styles.annotationMarkerActive);
   };
 
-  const handleFindingClick = (idx: number) => {
-    setActiveFindingIdx(activeFindingIdx === idx ? null : idx);
+  const getToothFocusClass = (tooth: string, idx: number) => {
+    if (activeFindingIdx !== idx) return '';
+    const finding = report?.findings[idx];
+    if (!finding?.toothPosition) return '';
+    const list = finding.toothPosition.split(',').map(s => s.trim());
+    return list.includes(tooth) ? styles.gridCellFocus : '';
   };
+
+  useEffect(() => {
+    if (scrollIntoId) {
+      const timer = setTimeout(() => setScrollIntoId(''), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [scrollIntoId]);
 
   if (!report) {
     return (
@@ -97,50 +132,58 @@ const ImageViewerPage: React.FC = () => {
     );
   }
 
+  const maxFindings = Math.min(3, report.findings.length);
+
   return (
-    <ScrollView scrollY className={styles.container}>
-      <View className={styles.imageStage}>
+    <ScrollView
+      scrollY
+      className={styles.container}
+      scrollIntoView={scrollIntoId}
+      scrollWithAnimation
+    >
+      <View id="iv-stage" className={styles.imageStage}>
         <View className={styles.imagePlaceholder}>
           {report.reportType === 'panoramic' ? (
             <View className={styles.toothGridFull}>
               <View className={styles.gridRow}>
                 {upperRow.map(n => (
-                  <View key={n} className={getCellClass(n)}>
-                  <Text>{n}</Text>
-                </View>)}
+                  <View
+                    key={n}
+                    className={getCellClass(n)}
+                    id={`iv-cell-${n}`}
+                  >
+                    <Text>{n}</Text>
+                  </View>
+                ))}
               </View>
               <View style={{ height: '12rpx' }} />
               <View className={styles.gridRow}>
                 {lowerRow.map(n => (
-                  <View key={n} className={getCellClass(n)}>
-                  <Text>{n}</Text>
-                </View>)}
+                  <View
+                    key={n}
+                    className={getCellClass(n)}
+                    id={`iv-cell-${n}`}
+                  >
+                    <Text>{n}</Text>
+                  </View>
+                ))}
               </View>
             </View>
           ) : (
             <View style={{ textAlign: 'center' }}>
-            <Text className={styles.bigEmoji}>
-              {report.reportType === 'cbct' ? '📐' : '🔬'}
-            </Text>
-            <View style={{
-              marginTop: '16rpx',
-              display: 'inline-flex',
-              padding: '8rpx 24rpx',
-              borderRadius: '999rpx',
-              background: 'rgba(255,107,107,0.25)',
-              border: '1rpx solid rgba(255,107,107,0.5)',
-              color: '#FF6B6B',
-              fontWeight: '700',
-              fontSize: '32rpx'
-            }}>
-              <Text>关注点：{report.affectedTeeth.join(', ')}号牙</Text>
-            </View>
+              <Text className={styles.bigEmoji}>
+                {report.reportType === 'cbct' ? '📐' : '🔬'}
+              </Text>
+              <View className={styles.focusBadge}>
+                <Text>关注点：{report.affectedTeeth.join(', ')}号牙</Text>
+              </View>
             </View>
           )}
 
-          {report.findings.slice(0, 3).map((f, idx) => (
+          {report.findings.slice(0, maxFindings).map((f, idx) => (
             <View
               key={f.id}
+              id={`iv-marker-${idx}`}
               className={classnames(
                 styles.annotationMarker,
                 getMarkerClass(f.severity, idx)
@@ -149,11 +192,29 @@ const ImageViewerPage: React.FC = () => {
                 top: `${20 + idx * 20}%`,
                 left: `${25 + idx * 18}%`
               }}
-              onClick={() => handleFindingClick(idx)}
+              onClick={() => handleMarkerClick(idx)}
             >
               <Text>{idx + 1}</Text>
             </View>
           ))}
+
+          {activeFindingIdx !== null && report.findings[activeFindingIdx]?.toothPosition && (
+            <View className={styles.activeCallout}>
+              <View className={classnames(styles.activeCalloutBadge,
+                severityBadge[report.findings[activeFindingIdx].severity])}>
+                <Text>{activeFindingIdx + 1}</Text>
+              </View>
+              <Text className={styles.activeCalloutText}>
+                {report.findings[activeFindingIdx].toothPosition.split(',').map((t, i) => (
+                  <Text key={t} className={classnames(styles.activeCalloutTooth,
+                    getToothFocusClass(t.trim(), activeFindingIdx) ? styles.activeCalloutToothFocus : '')}>
+                    {t.trim()}号牙{ i < report.findings[activeFindingIdx].toothPosition!.split(',').length - 1 ? '、' : '' }
+                  </Text>
+                ))}
+                <Text> · {severityLabelMap[report.findings[activeFindingIdx].severity]}</Text>
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -183,13 +244,14 @@ const ImageViewerPage: React.FC = () => {
         </View>
 
         <View className={styles.tipSmall}>
-          <Text className={styles.tipSmallText}>💡 点击下方标注，可在影像上定位</Text>
+          <Text className={styles.tipSmallText}>💡 点击下方标注，可在影像上定位高亮</Text>
         </View>
 
         <View className={styles.findingList}>
           {report.findings.map((f, idx) => (
             <View
               key={f.id}
+              id={`iv-finding-${idx}`}
               className={getItemClass(f.severity, idx)}
               onClick={() => handleFindingClick(idx)}
             >
@@ -197,9 +259,17 @@ const ImageViewerPage: React.FC = () => {
                 <Text>{idx + 1}</Text>
               </View>
               <View className={styles.findingContent}>
-                <Text className={styles.findingTerm}>{f.medicalTerm}</Text>
+                <View className={styles.findingTitleRow}>
+                  <Text className={styles.findingTerm}>{f.medicalTerm}</Text>
+                  <View className={classnames(styles.findingSeverityMini,
+                    severityBadge[f.severity])}>
+                    <Text className={styles.findingSeverityMiniText}>
+                      {severityLabelMap[f.severity]}
+                    </Text>
+                  </View>
+                </View>
                 <Text className={styles.findingPos}>
-                  {f.toothPosition && `${f.toothPosition}号牙`} · {severityLabelMap[f.severity]}
+                  {f.toothPosition && `牙位：${f.toothPosition}号牙`}
                 </Text>
                 <Text className={styles.findingExplanation}>
                   💡 {f.plainExplanation}

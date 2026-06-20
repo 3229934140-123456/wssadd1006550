@@ -90,6 +90,11 @@
   color: $color-tag-red-text;
 }
 
+.statusRevoked {
+  background: #f4ecf7;
+  color: #8E44AD;
+}
+
 .shareItemInfo {
   font-size: $font-size-sm;
   color: $color-text-secondary;
@@ -142,6 +147,21 @@
   font-weight: $font-weight-medium;
 }
 
+.readInfoDisabled {
+  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(189, 195, 199, 0.2);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+}
+
+.shareItemActionsSecondary {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+}
+
 .shareItemActions {
   display: flex;
   gap: $spacing-sm;
@@ -177,6 +197,34 @@
   color: $color-text-primary;
   font-weight: $font-weight-medium;
   white-space: nowrap;
+}
+
+.shareActionBtnDanger {
+  background: rgba(231, 76, 60, 0.08);
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+.shareActionBtnTextDanger {
+  font-size: $font-size-sm;
+  color: #C0392B;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.shareActionBtnAlt {
+  background: rgba(91, 184, 201, 0.08);
+  border-color: rgba(91, 184, 201, 0.3);
+}
+
+.shareActionBtnTextAlt {
+  font-size: $font-size-sm;
+  color: $color-primary-dark;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.shareActionBtnFull {
+  flex: 1 1 100%;
 }
 
 .privacyCard {
