@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import { mockReports } from '@/data/reports';
@@ -63,11 +63,11 @@ const ReportPage: React.FC = () => {
     return map;
   }, [report]);
 
-  React.useEffect(() => {
+  useDidShow(() => {
     if (report) {
       setCalendarAdded(isCalendarEventAdded(report.id));
     }
-  }, [report]);
+  });
 
   const handleAddCalendar = async () => {
     if (!report || !report.reminder) return;

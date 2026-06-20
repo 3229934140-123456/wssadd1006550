@@ -309,3 +309,56 @@
   font-size: $font-size-xs;
   color: $color-text-tertiary;
 }
+
+.confirmBox {
+  background: linear-gradient(135deg, rgba(255, 170, 92, 0.1) 0%, rgba(255, 170, 92, 0.05) 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border: 2rpx solid rgba(255, 170, 92, 0.35);
+}
+
+.confirmBoxDone {
+  background: linear-gradient(135deg, rgba(92, 184, 92, 0.1) 0%, rgba(92, 184, 92, 0.05) 100%);
+  border-color: rgba(92, 184, 92, 0.35);
+}
+
+.confirmDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.confirmBtn {
+  background: linear-gradient(135deg, #FFAA5C 0%, #FFBE7A 100%);
+  border-radius: $radius-md;
+  padding: 24rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.confirmDoneRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+}
+
+.confirmIcon {
+  font-size: 36rpx;
+}
+
+.confirmDoneText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: #3FA34D;
+}

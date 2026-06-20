@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -33,33 +33,49 @@ const ImageViewerPage: React.FC = () => {
     return { report: rep, severityMap: map };
   }, []);
 
+  const [activeFindingIdx, setActiveFindingIdx] = useState<number | null>(null);
+
   const getCellClass = (num: string) => {
-    if (!report.affectedTeeth.includes(num)) return styles.gridCell;
+    if (!report || !report.affectedTeeth.includes(num)) return styles.gridCell;
+    const activeFinding = activeFindingIdx !== null ? report.findings[activeFindingIdx] : null;
+    const isHighlighted = !!(activeFinding?.toothPosition?.split(',').map(s => s.trim()).includes(num));
     const s = severityMap[num];
-    if (s === 'severe') return classnames(styles.gridCell, styles.gridCellHighlight);
-    if (s === 'moderate') return classnames(styles.gridCell, styles.gridCellMod);
-    if (s === 'mild') return classnames(styles.gridCell, styles.gridCellMild);
-    return classnames(styles.gridCell, styles.gridCellMild);
+    let base = styles.gridCell;
+    if (s === 'severe') base = classnames(styles.gridCell, styles.gridCellHighlight);
+    else if (s === 'moderate') base = classnames(styles.gridCell, styles.gridCellMod);
+    else if (s === 'mild') base = classnames(styles.gridCell, styles.gridCellMild);
+    else base = classnames(styles.gridCell, styles.gridCellMild);
+    return classnames(base, isHighlighted && styles.gridCellFocus);
   };
 
-  const getFindingIndexClass = (sev: Severity) => {
-    if (sev === 'severe') return classnames(styles.findingIndex, styles.findingIndexSevere);
-    if (sev === 'moderate') return classnames(styles.findingIndex, styles.findingIndexModerate);
-    if (sev === 'mild') return classnames(styles.findingIndex, styles.findingIndexMild);
-    return styles.findingIndex;
+  const getFindingIndexClass = (sev: Severity, idx: number) => {
+    const base =
+      sev === 'severe' ? classnames(styles.findingIndex, styles.findingIndexSevere) :
+      sev === 'moderate' ? classnames(styles.findingIndex, styles.findingIndexModerate) :
+      sev === 'mild' ? classnames(styles.findingIndex, styles.findingIndexMild) :
+      styles.findingIndex;
+    return classnames(base, activeFindingIdx === idx && styles.findingIndexActive);
   };
 
-  const getItemClass = (sev: Severity) => {
-    if (sev === 'severe') return classnames(styles.findingItem, styles.findingItemSevere);
-    if (sev === 'moderate') return classnames(styles.findingItem, styles.findingItemModerate);
-    if (sev === 'mild') return classnames(styles.findingItem, styles.findingItemMild);
-    return styles.findingItem;
+  const getItemClass = (sev: Severity, idx: number) => {
+    const base =
+      sev === 'severe' ? classnames(styles.findingItem, styles.findingItemSevere) :
+      sev === 'moderate' ? classnames(styles.findingItem, styles.findingItemModerate) :
+      sev === 'mild' ? classnames(styles.findingItem, styles.findingItemMild) :
+      styles.findingItem;
+    return classnames(base, activeFindingIdx === idx && styles.findingItemActive);
   };
 
-  const getMarkerClass = (sev: Severity) => {
-    if (sev === 'moderate') return styles.annotationMarkerMod;
-    if (sev === 'mild') return styles.annotationMarkerMild;
-    return '';
+  const getMarkerClass = (sev: Severity, idx: number) => {
+    const base =
+      sev === 'moderate' ? styles.annotationMarkerMod :
+      sev === 'mild' ? styles.annotationMarkerMild :
+      '';
+    return classnames(base, activeFindingIdx === idx && styles.annotationMarkerActive);
+  };
+
+  const handleFindingClick = (idx: number) => {
+    setActiveFindingIdx(activeFindingIdx === idx ? null : idx);
   };
 
   if (!report) {
@@ -127,12 +143,13 @@ const ImageViewerPage: React.FC = () => {
               key={f.id}
               className={classnames(
                 styles.annotationMarker,
-                getMarkerClass(f.severity)
+                getMarkerClass(f.severity, idx)
               )}
               style={{
                 top: `${20 + idx * 20}%`,
                 left: `${25 + idx * 18}%`
               }}
+              onClick={() => handleFindingClick(idx)}
             >
               <Text>{idx + 1}</Text>
             </View>
@@ -165,10 +182,18 @@ const ImageViewerPage: React.FC = () => {
           </View>
         </View>
 
+        <View className={styles.tipSmall}>
+          <Text className={styles.tipSmallText}>💡 点击下方标注，可在影像上定位</Text>
+        </View>
+
         <View className={styles.findingList}>
           {report.findings.map((f, idx) => (
-            <View key={f.id} className={getItemClass(f.severity)}>
-              <View className={getFindingIndexClass(f.severity)}>
+            <View
+              key={f.id}
+              className={getItemClass(f.severity, idx)}
+              onClick={() => handleFindingClick(idx)}
+            >
+              <View className={getFindingIndexClass(f.severity, idx)}>
                 <Text>{idx + 1}</Text>
               </View>
               <View className={styles.findingContent}>

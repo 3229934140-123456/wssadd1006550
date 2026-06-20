@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { Reminder } from '@/types/reminder';
 import dayjs from 'dayjs';
@@ -42,6 +42,10 @@ const ReminderCard: React.FC<ReminderCardProps> = ({ reminder, onClick, onCalend
   useEffect(() => {
     setCalendarAdded(isCalendarEventAdded(reminder.reportId));
   }, [reminder.reportId]);
+
+  useDidShow(() => {
+    setCalendarAdded(isCalendarEventAdded(reminder.reportId));
+  });
 
   const getCountdown = () => {
     if (reminder.status === 'done') return { text: '已完成', style: styles.countdownDone };

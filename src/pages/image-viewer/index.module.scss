@@ -86,6 +86,13 @@
   color: #FFD93D;
 }
 
+.gridCellFocus {
+  transform: scale(1.25);
+  z-index: 9;
+  box-shadow: 0 0 12rpx 4rpx rgba(255, 255, 255, 0.45);
+  border-width: 2rpx;
+}
+
 .annotationMarker {
   position: absolute;
   width: 52rpx;
@@ -100,6 +107,19 @@
   font-size: 22rpx;
   font-weight: 700;
   box-shadow: 0 0 0 8rpx rgba(255, 107, 107, 0.2);
+  transition: all 0.3s ease;
+}
+
+.annotationMarkerActive {
+  transform: scale(1.4);
+  z-index: 9;
+  box-shadow: 0 0 0 14rpx rgba(255, 255, 255, 0.35), 0 0 20rpx 6rpx rgba(255, 107, 107, 0.6);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1.35); }
+  50% { transform: scale(1.55); }
 }
 
 .annotationMarkerMod {
@@ -148,6 +168,15 @@
   margin-bottom: $spacing-lg;
 }
 
+.tipSmall {
+  margin-bottom: $spacing-md;
+}
+
+.tipSmallText {
+  font-size: $font-size-xs;
+  color: $color-primary-dark;
+}
+
 .legendItem {
   display: flex;
   align-items: center;
@@ -189,6 +218,14 @@
   border-radius: $radius-md;
   margin-bottom: $spacing-sm;
   border-left: 5rpx solid $color-primary;
+  transition: all 0.2s ease;
+}
+
+.findingItemActive {
+  transform: translateX(6rpx);
+  background: rgba(91, 184, 201, 0.1);
+  border-left-width: 8rpx;
+  box-shadow: 0 4rpx 16rpx rgba(91, 184, 201, 0.18);
 }
 
 .findingItemSevere {
@@ -216,6 +253,12 @@
   font-weight: 700;
   margin-right: $spacing-md;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.findingIndexActive {
+  transform: scale(1.2);
+  box-shadow: 0 0 10rpx 2rpx rgba(91, 184, 201, 0.5);
 }
 
 .findingIndexSevere {

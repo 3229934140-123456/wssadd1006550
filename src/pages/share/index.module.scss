@@ -102,6 +102,46 @@
   margin-top: $spacing-sm;
 }
 
+.readInfo {
+  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(92, 184, 92, 0.1);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+}
+
+.readIcon {
+  font-size: 28rpx;
+  margin-right: $spacing-sm;
+}
+
+.readText {
+  font-size: $font-size-xs;
+  color: #3FA34D;
+  font-weight: $font-weight-medium;
+}
+
+.readInfoPending {
+  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 170, 92, 0.12);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+}
+
+.readIconPending {
+  font-size: 28rpx;
+  margin-right: $spacing-sm;
+}
+
+.readTextPending {
+  font-size: $font-size-xs;
+  color: #C4782E;
+  font-weight: $font-weight-medium;
+}
+
 .shareItemActions {
   display: flex;
   gap: $spacing-sm;

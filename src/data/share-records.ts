@@ -42,13 +42,17 @@ const defaultRecords: ShareRecord[] = [
 function loadFromStorage(): ShareRecord[] {
   try {
     const raw = Taro.getStorageSync(STORAGE_KEY);
-    if (!raw) return defaultRecords;
+    if (!raw) {
+      Taro.setStorageSync(STORAGE_KEY, JSON.stringify(defaultRecords));
+      return [...defaultRecords];
+    }
     const data = JSON.parse(raw);
     if (Array.isArray(data) && data.length > 0) return data;
-    return defaultRecords;
+    Taro.setStorageSync(STORAGE_KEY, JSON.stringify(defaultRecords));
+    return [...defaultRecords];
   } catch (e) {
     console.warn('[ShareRecords] 读取本地存储失败，使用默认数据', e);
-    return defaultRecords;
+    return [...defaultRecords];
   }
 }
 
@@ -116,6 +120,26 @@ export function createShareRecord(
 
   console.info('[ShareRecords] 创建分享记录并持久化', { token, reportId });
   return record;
+}
+
+export function markShareAsRead(token: string, readerName: string = '家属'): boolean {
+  if (!token) return false;
+  const records = checkAndUpdateExpiry(shareRecords);
+  const idx = records.findIndex(r => r.token === token);
+  if (idx === -1) return false;
+
+  if (!records[idx].readAt) {
+    const updated = [...records];
+    updated[idx] = {
+      ...updated[idx],
+      readAt: new Date().toISOString(),
+      readBy: readerName
+    };
+    shareRecords = updated;
+    saveToStorage(updated);
+    console.info('[ShareRecords] 标记为已读', { token, readerName });
+  }
+  return true;
 }
 
 export function getAllShareRecords(): ShareRecord[] {

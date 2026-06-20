@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import { mockReports } from '@/data/reports';
-import { getShareRecord } from '@/data/share-records';
+import { getShareRecord, markShareAsRead } from '@/data/share-records';
 import { Severity } from '@/types/report';
 import ToothDiagram from '@/components/ToothDiagram';
 import styles from './index.module.scss';
@@ -30,27 +30,32 @@ const severityBadgeStyleMap: Record<Severity, string> = {
 };
 
 const FamilyViewPage: React.FC = () => {
-  const { report, status, shareRecord } = useMemo(() => {
+  const { report, status, shareRecord, token } = useMemo(() => {
     const instance = Taro.getCurrentInstance();
     const tok = instance.router?.params?.token;
 
     if (!tok) {
-      return { report: null, status: 'invalid', shareRecord: null };
+      return { report: null, status: 'invalid', shareRecord: null, token: '' };
     }
 
     const rec = getShareRecord(tok);
 
     if (!rec) {
-      return { report: null, status: 'not_found', shareRecord: null };
+      return { report: null, status: 'not_found', shareRecord: null, token: tok };
     }
 
     if (rec.status === 'expired') {
-      return { report: null, status: 'expired', shareRecord: rec };
+      return { report: null, status: 'expired', shareRecord: rec, token: tok };
     }
 
     const rep = mockReports.find(r => r.id === rec.reportId);
-    return { report: rep || null, status: 'ok', shareRecord: rec };
+    return { report: rep || null, status: 'ok', shareRecord: rec, token: tok };
   }, []);
+
+  const [hasRead, setHasRead] = useState<boolean>(!!shareRecord?.readAt);
+  const [readAtText, setReadAtText] = useState<string>(
+    shareRecord?.readAt ? dayjs(shareRecord.readAt).format('MM月DD日 HH:mm') : ''
+  );
 
   const severityMap = useMemo(() => {
     const map: Record<string, Severity> = {};
@@ -64,6 +69,17 @@ const FamilyViewPage: React.FC = () => {
     });
     return map;
   }, [report]);
+
+  const handleConfirmRead = () => {
+    if (hasRead || !token) return;
+    const ok = markShareAsRead(token, '家属');
+    if (ok) {
+      const nowStr = dayjs().format('MM月DD日 HH:mm');
+      setHasRead(true);
+      setReadAtText(nowStr);
+      Taro.showToast({ title: '已确认查看', icon: 'success' });
+    }
+  };
 
   if (!report) {
     let icon = '⏰';
@@ -189,6 +205,26 @@ const FamilyViewPage: React.FC = () => {
               </Text>
               <Text className={styles.reminderNote}>{report.reminder.note}</Text>
             </View>
+          )}
+        </View>
+
+        <View className={classnames(styles.confirmBox, hasRead && styles.confirmBoxDone)}>
+          {hasRead ? (
+            <View className={styles.confirmDoneRow}>
+              <Text className={styles.confirmIcon}>✅</Text>
+              <Text className={styles.confirmDoneText}>
+                已确认查看 · {readAtText}
+              </Text>
+            </View>
+          ) : (
+            <>
+              <Text className={styles.confirmDesc}>
+                如您已完整阅读报告，请点击下方按钮确认，患者端将收到您的已读记录
+              </Text>
+              <View className={styles.confirmBtn} onClick={handleConfirmRead}>
+                <Text className={styles.confirmBtnText}>我已查看并了解报告内容</Text>
+              </View>
+            </>
           )}
         </View>
 

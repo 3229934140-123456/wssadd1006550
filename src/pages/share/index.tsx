@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -7,7 +7,13 @@ import { getAllShareRecords, buildShareLink } from '@/data/share-records';
 import styles from './index.module.scss';
 
 const SharePage: React.FC = () => {
-  const records = useMemo(() => getAllShareRecords(), []);
+  const [records, setRecords] = useState(useMemo(() => getAllShareRecords(), []));
+
+  useEffect(() => {
+    const refresh = () => setRecords(getAllShareRecords());
+    const timer = setInterval(refresh, 1500);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleCopyLink = (token: string, reportTypeLabel: string) => {
     const link = buildShareLink(token);
@@ -45,6 +51,7 @@ const SharePage: React.FC = () => {
         {records.map(record => {
           const exp = dayjs(record.expiryDate);
           const isActive = record.status === 'active';
+          const isRead = !!record.readAt;
           return (
             <View key={record.token} className={styles.shareItem}>
               <View className={styles.shareItemHeader}>
@@ -65,6 +72,21 @@ const SharePage: React.FC = () => {
                   : `⏰ 链接已于 ${exp.format('MM月DD日')} 过期`
                 }
               </Text>
+
+              {isRead ? (
+                <View className={styles.readInfo}>
+                  <Text className={styles.readIcon}>👀</Text>
+                  <Text className={styles.readText}>
+                    {record.readBy} 已于 {dayjs(record.readAt).format('MM月DD日 HH:mm')} 查看
+                  </Text>
+                </View>
+              ) : (
+                <View className={styles.readInfoPending}>
+                  <Text className={styles.readIconPending}>⏳</Text>
+                  <Text className={styles.readTextPending}>待家属查看确认</Text>
+                </View>
+              )}
+
               <View className={styles.shareItemActions}>
                 <View
                   className={styles.shareActionBtn}
@@ -118,7 +140,7 @@ const SharePage: React.FC = () => {
         </View>
         <View className={styles.privacyItem}>
           <Text className={styles.privacyIcon}>✅</Text>
-          <Text className={styles.privacyText}>适合拔牙、正畸、种植前与家人共同决策</Text>
+          <Text className={styles.privacyText}>家属可点击确认已读，您能实时查看状态</Text>
         </View>
       </View>
     </ScrollView>

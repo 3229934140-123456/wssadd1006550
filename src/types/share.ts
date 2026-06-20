@@ -8,4 +8,6 @@ export interface ShareRecord {
   expiryDate: string;
   createdBy: string;
   status: 'active' | 'expired';
+  readAt?: string;
+  readBy?: string;
 }
